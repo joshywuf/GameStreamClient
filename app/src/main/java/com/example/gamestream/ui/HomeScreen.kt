@@ -15,19 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.gamestream.net.ConnectionState
-import com.example.gamestream.net.HostConnection
+import com.example.gamestream.net.DEFAULT_PORT
 
 @Composable
-fun HomeScreen(connection: HostConnection, modifier: Modifier = Modifier) {
-    val state by connection.state.collectAsState()
-    var host by remember { mutableStateOf("192.168.1.10") }
+fun HomeScreen(viewModel: ConnectionViewModel, modifier: Modifier = Modifier) {
+    val state by viewModel.state.collectAsState()
 
     Column(
         modifier = modifier
@@ -40,9 +36,10 @@ fun HomeScreen(connection: HostConnection, modifier: Modifier = Modifier) {
         Spacer(Modifier.height(24.dp))
 
         OutlinedTextField(
-            value = host,
-            onValueChange = { host = it },
-            label = { Text("Host address") },
+            value = viewModel.host,
+            onValueChange = viewModel::onHostChange,
+            label = { Text("PC address") },
+            supportingText = { Text("Emulator: 10.0.2.2. Port $DEFAULT_PORT is used if none is given.") },
             singleLine = true
         )
         Spacer(Modifier.height(16.dp))
@@ -51,9 +48,15 @@ fun HomeScreen(connection: HostConnection, modifier: Modifier = Modifier) {
         Spacer(Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { connection.connect(host) }) { Text("Connect (fake)") }
-            OutlinedButton(onClick = { connection.disconnect() }) { Text("Disconnect") }
+            Button(onClick = viewModel::connect) { Text("Connect") }
+            OutlinedButton(onClick = viewModel::disconnect) { Text("Disconnect") }
         }
+        Spacer(Modifier.height(24.dp))
+
+        Text(
+            "Connection test only. Nothing is streamed yet.",
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 
